@@ -15,16 +15,22 @@ data class NetworkPrayer(
     val timings: Timings
 )
 
-fun NetworkPrayer.toPrayer(city: String) = Prayer(
-    asr = timings.asr,
-    dhuhr = timings.dhuhr,
-    fajr = timings.fajr,
-    imsak = timings.imsak,
-    isha = timings.isha,
-    maghrib = timings.maghrib,
-    midnight = timings.midnight,
-    sunrise = timings.sunrise,
-    sunset = timings.sunset,
-    date = date.timestamp.toLong(),
-    city = city
-)
+fun NetworkPrayer.toPrayer(city: String): Prayer {
+    val date = date.gregorian
+
+    return Prayer(
+        asr = timings.asr,
+        dhuhr = timings.dhuhr,
+        fajr = timings.fajr,
+        imsak = timings.imsak,
+        isha = timings.isha,
+        maghrib = timings.maghrib,
+        midnight = timings.midnight,
+        sunrise = timings.sunrise,
+        sunset = timings.sunset,
+        day = date.day.toIntOrNull() ?: 1,
+        month = date.month.number,
+        year = date.year.toIntOrNull() ?: 2021,
+        city = city
+    )
+}

@@ -38,6 +38,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs = listOf("-Xcontext-receivers")
     }
     buildFeatures {
         compose = true
@@ -73,6 +74,7 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.compose)
     implementation(libs.koin.android)
+    implementation(libs.koin.workmanager)
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp.compiler)
     //room
@@ -85,6 +87,8 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.serialization)
+    //work manager
+    implementation(libs.androidx.work.ktx)
     //test
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(platform(libs.androidx.compose.bom))

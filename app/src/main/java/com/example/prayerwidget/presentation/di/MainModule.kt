@@ -1,5 +1,7 @@
 package com.example.prayerwidget.presentation.di
 
+import android.content.Context
+import com.example.prayerwidget.data.source.local.PrayerDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -11,6 +13,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
 @Module
 @ComponentScan("com.example")
@@ -28,4 +31,10 @@ class MainModule {
             logger = Logger.ANDROID
         }
     }
+
+    @Single
+    fun provideDatabase(context: Context) = PrayerDatabase.createDatabase(context)
+
+    @Factory
+    fun providePrayerDao(database: PrayerDatabase) = database.prayerDao()
 }

@@ -3,7 +3,7 @@ package com.example.prayerwidget.data.model
 import androidx.room.Entity
 import com.example.prayerwidget.domain.model.Prayer
 
-@Entity(tableName = "prayer_by_day", primaryKeys = ["date", "city"])
+@Entity(tableName = "prayerEntity", primaryKeys = ["city", "day", "month", "year"])
 data class PrayerEntity(
     val asr: String,
     val dhuhr: String,
@@ -14,7 +14,9 @@ data class PrayerEntity(
     val midnight: String,
     val sunrise: String,
     val sunset: String,
-    val date: Long,
+    val day: Int,
+    val month: Int,
+    val year: Int,
     val city: String
 )
 
@@ -28,8 +30,10 @@ fun PrayerEntity.toPrayer() = Prayer(
     midnight = midnight,
     sunrise = sunrise,
     sunset = sunset,
-    date = date,
-    city = city
+    city = city,
+    day = day,
+    month = month,
+    year = year
 )
 
 fun Prayer.toEntity() = PrayerEntity(
@@ -42,6 +46,8 @@ fun Prayer.toEntity() = PrayerEntity(
     midnight = midnight,
     sunrise = sunrise,
     sunset = sunset,
-    date = date,
-    city = city
+    city = city,
+    day = day,
+    month = month,
+    year = year
 )

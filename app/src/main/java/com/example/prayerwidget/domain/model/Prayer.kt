@@ -10,6 +10,8 @@ data class Prayer(
     val midnight: String,
     val sunrise: String,
     val sunset: String,
-    val date: Long,
+    val day: Int,
+    val month: Int,
+    val year: Int,
     val city: String
 )
