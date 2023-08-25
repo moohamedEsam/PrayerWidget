@@ -50,6 +50,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    sourceSets.getByName("main") {
+        java.srcDirs("build/generated/ksp/debug/kotlin")
+    }
 }
 
 dependencies {
@@ -71,6 +74,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.android)
     implementation(libs.koin.annotations)
+    ksp(libs.koin.ksp.compiler)
     //room
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
