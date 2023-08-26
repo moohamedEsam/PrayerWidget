@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.prayerwidget.data.model.PrayerEntity
 
-@Database(entities = [PrayerEntity::class], version = 1)
+@Database(entities = [PrayerEntity::class], version = 1, exportSchema = false)
 abstract class PrayerDatabase : RoomDatabase() {
     abstract fun prayerDao(): PrayerDao
 

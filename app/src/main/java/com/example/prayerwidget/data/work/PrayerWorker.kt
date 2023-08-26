@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.example.prayerwidget.data.source.PrayerRepository
 import kotlinx.coroutines.flow.firstOrNull
 import java.time.LocalDate
+import java.util.Calendar
 
 class PrayerWorker(
     context: Context,
@@ -15,22 +16,35 @@ class PrayerWorker(
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val today = LocalDate.now().plusDays(1)
-                val prayers = prayerRepository.getPrayerByDate(
-                    year = today.year,
-                    month = today.monthValue,
-                    day = today.dayOfMonth,
-                    city = "Banha"
-                ).firstOrNull()
-                if (prayers?.isNotEmpty() == true)
-                    return Result.success()
-
-            }
-            prayerRepository.sync(2023, 8, "EG", "Banha")
+            val (day, month, year) = getDate()
+            val prayers = prayerRepository.getPrayerByDate(
+                year = year,
+                month = month,
+                day = day,
+                city = "Banha"
+            ).firstOrNull()
+            if (prayers?.isNotEmpty() == true)
+                return Result.success()
+            prayerRepository.sync(year, month, "EG", "Banha")
             Result.success()
         } catch (e: Exception) {
             Result.failure()
         }
+    }
+
+    private fun getDate(): Triple<Int, Int, Int> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val today = LocalDate.now().plusDays(1)
+            Triple(today.dayOfMonth, today.monthValue, today.year)
+        } else {
+            val today = Calendar.getInstance()
+            today.add(Calendar.DAY_OF_MONTH, 1)
+            Triple(
+                today[Calendar.DAY_OF_MONTH],
+                today[Calendar.MONTH],
+                today[Calendar.YEAR]
+            )
+        }
+
     }
 }

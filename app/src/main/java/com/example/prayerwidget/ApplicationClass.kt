@@ -19,8 +19,8 @@ class ApplicationClass : Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            workManagerFactory()
             androidContext(this@ApplicationClass)
+            workManagerFactory()
             modules(MainModule().module, workerModule)
             androidLogger()
         }
