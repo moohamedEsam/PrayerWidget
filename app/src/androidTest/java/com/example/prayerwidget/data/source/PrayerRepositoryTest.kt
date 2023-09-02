@@ -2,7 +2,6 @@ package com.example.prayerwidget.data.source
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import app.cash.turbine.test
 import com.example.prayerwidget.data.source.local.PrayerDatabase
 import com.example.prayerwidget.data.source.remote.KtorDataSource
 import com.example.prayerwidget.presentation.di.MainModule
@@ -39,16 +38,13 @@ class PrayerRepositoryTest {
             prayerRepository.sync(calendar[Calendar.YEAR], calendar[Calendar.MONTH], "EG", "Banha")
         result.onFailure { Assert.fail() }
 
-        val prayers = prayerRepository.getPrayerByDate(
+        val prayer = prayerRepository.getPrayerByDate(
             year = calendar[Calendar.YEAR],
             month = calendar[Calendar.MONTH],
             day = calendar[Calendar.DAY_OF_MONTH],
             city = "Banha"
         )
-        prayers.test {
-            val items = awaitItem()
-            items.size shouldNotBe 0
-        }
+        prayer shouldNotBe null
     }
 
     @After

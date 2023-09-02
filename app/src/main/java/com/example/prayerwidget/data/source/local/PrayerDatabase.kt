@@ -17,6 +17,6 @@ abstract class PrayerDatabase : RoomDatabase() {
             context,
             PrayerDatabase::class.java,
             DATABASE_NAME
-        ).build()
+        ).allowMainThreadQueries().build()
     }
 }

@@ -1,15 +1,15 @@
 [versions]
-androidGradlePlugin = "8.1.0"
+androidGradlePlugin = "8.1.1"
 androidxActivity = "1.7.2"
 androidxAppCompat = "1.6.1"
-androidxComposeBom = "2023.06.01"
+androidxComposeBom = "2023.08.00"
 androidxComposeCompiler = "1.5.0"
 androidxComposeRuntimeTracing = "1.0.0-alpha03"
 androidxCore = "1.10.1"
 androidxCoreSplashscreen = "1.0.1"
 androidxDataStore = "1.0.0"
 androidxLifecycle = "2.6.1"
-androidxNavigation = "2.6.0"
+androidxNavigation = "2.7.0"
 androidxTestCore = "1.5.0"
 androidxTestExt = "1.1.5"
 androidxTestRules = "1.5.0"
@@ -18,9 +18,9 @@ androidxTracing = "1.1.0"
 androidxUiAutomator = "2.2.0"
 androidxWindowManager = "1.1.0"
 androidxWork = "2.8.1"
-androidxPaging = "3.1.1"
-androidxPagingCompose = "3.2.0-rc01"
-andoridxPagingTesting = "3.2.0-rc01"
+androidxPaging = "3.2.0"
+androidxPagingCompose = "3.2.0"
+andoridxPagingTesting = "3.2.0"
 coil = "2.2.2"
 koin = "3.4.2"
 koinAnnotations = "1.2.2"
@@ -32,14 +32,14 @@ kotlinxCoroutines = "1.7.2"
 kotlinxDatetime = "0.4.0"
 kotlinxSerializationJson = "1.5.1"
 ksp = "1.9.0-1.0.12"
-lint = "31.1.0"
+lint = "31.1.1"
 protobuf = "3.21.12"
 protobufPlugin = "0.8.19"
 room = "2.5.2"
 turbine = "0.12.1"
 kotest = "5.6.2"
 arrow = "1.2.0"
-
+glance = "1.0.0-rc01"
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
@@ -78,6 +78,9 @@ androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", 
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidxPaging" }
 androidx-paging-testing = { group = "androidx.paging", name = "paging-testing", version.ref = "andoridxPagingTesting" }
 androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "androidxPaging" }
+androidx-glance = { group = "androidx.glance", name = "glance", version.ref = "glance" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 arrow-core = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow" }
 arrow-fx-coroutines = { group = "io.arrow-kt", name = "arrow-fx-coroutines", version.ref = "arrow" }
 coil-kt = { group = "io.coil-kt", name = "coil", version.ref = "coil" }

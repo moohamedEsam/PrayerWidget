@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "com.example.prayerwidget"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.prayerwidget"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -89,6 +89,15 @@ dependencies {
     implementation(libs.ktor.client.serialization)
     //work manager
     implementation(libs.androidx.work.ktx)
+
+    //glance
+    implementation(libs.androidx.glance)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+
+    //data store
+    implementation(libs.androidx.dataStore.core)
+
     //test
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(platform(libs.androidx.compose.bom))
