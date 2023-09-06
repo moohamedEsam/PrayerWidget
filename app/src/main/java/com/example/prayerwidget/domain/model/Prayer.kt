@@ -14,4 +14,22 @@ data class Prayer(
     val month: Int,
     val year: Int,
     val city: String
+) {
+    companion object
+}
+
+fun Prayer.Companion.empty() = Prayer(
+    asr = "",
+    dhuhr = "",
+    fajr = "",
+    imsak = "",
+    isha = "",
+    maghrib = "",
+    midnight = "",
+    sunrise = "",
+    sunset = "",
+    day = 0,
+    month = 0,
+    year = 0,
+    city = ""
 )
