@@ -1,21 +1,28 @@
 package com.example.prayerwidget.presentation.screens.home
 
+import android.util.Log
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.prayerwidget.domain.usecase.GetCurrentPrayerUseCase
 import com.example.prayerwidget.domain.usecase.ObserveSettingsUseCase
 import com.example.prayerwidget.domain.usecase.SyncUseCase
-import com.example.prayerwidget.domain.usecase.UpdateSettingsUseCase
 import com.example.prayerwidget.domain.usecase.calculateTimeLeft
+import com.example.prayerwidget.domain.usecase.settings.UpdatePrayerAlarmEnabledUseCase
+import com.example.prayerwidget.domain.usecase.settings.UpdateSettingsUseCase
 import com.example.prayerwidget.presentation.model.toPrayerDto
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -23,14 +30,25 @@ import kotlin.time.toDuration
 class HomeScreenViewModel(
     private val observeSettingsUseCase: ObserveSettingsUseCase,
     private val updateSettingsUseCase: UpdateSettingsUseCase,
+    private val updatePrayerAlarmEnabledUseCase: UpdatePrayerAlarmEnabledUseCase,
     private val syncUseCase: SyncUseCase,
     private val getCurrentPrayerUseCase: GetCurrentPrayerUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeScreenState())
     val state = _state.asStateFlow()
+    private val prayerDtoFlow = combine(
+        getCurrentPrayerUseCase(),
+        observeSettingsUseCase()
+    ) { prayer, settings ->
+        _state.update { it.copy(city = settings.city, country = settings.country) }
+        val prayerDto = prayer.toPrayerDto()
+        prayerDto.prayers.forEachIndexed { index, singlePrayer ->
+            singlePrayer.alarmEnabled = settings.alarms[index]
+        }
+        prayerDto
+    }
 
     init {
-        observeSettings()
         observePrayer()
         setPrayerTimeLeft()
     }
@@ -40,6 +58,11 @@ class HomeScreenViewModel(
             is HomeScreenEvent.CityChanged -> _state.value = _state.value.copy(city = event.value)
             is HomeScreenEvent.CountryChanged -> _state.value =
                 _state.value.copy(country = event.value)
+
+            is HomeScreenEvent.PrayerAlarmEnableToggle -> updatePrayerAlarmEnabledUseCase(
+                event.index,
+                event.enabled
+            )
 
             HomeScreenEvent.SyncClicked -> {
                 updateSettingsUseCase {
@@ -53,43 +76,38 @@ class HomeScreenViewModel(
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun setPrayerTimeLeft() = viewModelScope.launch {
-        _state.map { it.prayer }.filterNotNull().collect { prayer ->
-            val fajr = prayer.fajr.copy(timeLeft = calculateTimeLeft(prayer.fajr))
-            val dhuhr = prayer.dhuhr.copy(timeLeft = calculateTimeLeft(prayer.dhuhr))
-            val asr = prayer.asr.copy(timeLeft = calculateTimeLeft(prayer.asr))
-            val maghrib = prayer.maghrib.copy(timeLeft = calculateTimeLeft(prayer.maghrib))
-            val isha = prayer.isha.copy(timeLeft = calculateTimeLeft(prayer.isha))
-            _state.value = _state.value.copy(
-                prayer = prayer.copy(
-                    fajr = fajr,
-                    dhuhr = dhuhr,
-                    asr = asr,
-                    maghrib = maghrib,
-                    isha = isha
-                )
-            )
-            delay((1).toDuration(DurationUnit.MINUTES))
-        }
+        _state.map { it.prayer?.prayers }
+            .debounce((1).toDuration(DurationUnit.MINUTES))
+            .filterNotNull()
+            .collectLatest { prayers ->
+                Log.i("HomeScreenViewModel", "setPrayerTimeLeft: called")
+                prayers.forEach {
+                    it.timeLeft = calculateTimeLeft(it)
+                }
+                _state.update {
+                    it.copy(
+                        prayer = it.prayer?.copy(prayers = prayers.toMutableStateList())
+                    )
+                }
+            }
     }
 
 
     private fun observePrayer() {
         viewModelScope.launch {
-            getCurrentPrayerUseCase().collectLatest {
-                _state.value = _state.value.copy(prayer = it.toPrayerDto())
+            prayerDtoFlow.collectLatest { prayerDto ->
+                Log.i("HomeScreenViewModel", "observePrayer: called")
+                _state.update { state ->
+                    prayerDto.prayers.forEachIndexed { index, singlePrayer ->
+                        singlePrayer.timeLeft =
+                            state.prayer?.prayers?.getOrNull(index)?.timeLeft ?: Duration.ZERO
+                    }
+                    state.copy(prayer = prayerDto)
+                }
             }
         }
     }
 
-    private fun observeSettings() {
-        viewModelScope.launch {
-            observeSettingsUseCase().collectLatest {
-                _state.value = _state.value.copy(
-                    city = it.city,
-                    country = it.country
-                )
-            }
-        }
-    }
 }

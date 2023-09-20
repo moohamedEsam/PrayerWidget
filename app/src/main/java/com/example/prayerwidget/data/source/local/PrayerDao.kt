@@ -16,9 +16,6 @@ interface PrayerDao {
     @Query("select * from prayerEntity where year = :year and month = :month and day = :day and city = :city")
     suspend fun getPrayerByDate(year: Int, month: Int, day: Int, city: String): PrayerEntity?
 
-    @Query("SELECT * FROM prayerEntity WHERE year = :year and month =:month and day =:day AND city = :city")
-    fun getPrayerByDateWidget(year: Int, month: Int, day: Int, city: String): PrayerEntity?
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPrayers(prayers: List<PrayerEntity>)
 

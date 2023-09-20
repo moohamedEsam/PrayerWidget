@@ -1,5 +1,6 @@
 package com.example.prayerwidget.presentation.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,12 +26,14 @@ import com.example.prayerwidget.presentation.model.PrayerDto
 import com.example.prayerwidget.presentation.model.SinglePrayer
 import com.example.prayerwidget.presentation.model.empty
 import org.koin.androidx.compose.koinViewModel
+import kotlin.time.Duration
 
 @Composable
 fun HomeScreen(
     viewModel: HomeScreenViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    Log.i("HomeScreen", "HomeScreen: ${state.prayer?.prayers?.last()}")
     HomeScreen(
         state = state,
         onEvent = viewModel::handleEvent
@@ -76,17 +79,16 @@ private fun HomeScreen(
             text = "Prayer Times ${state.prayer.month}/${state.prayer.day}",
             style = MaterialTheme.typography.headlineMedium
         )
-        SinglePrayerItem(state.prayer.fajr)
-        SinglePrayerItem(state.prayer.dhuhr)
-        SinglePrayerItem(state.prayer.asr)
-        SinglePrayerItem(state.prayer.maghrib)
-        SinglePrayerItem(state.prayer.isha)
-
+        state.prayer.prayers.forEachIndexed { index, value ->
+            SinglePrayerItem(value) {
+                onEvent(HomeScreenEvent.PrayerAlarmEnableToggle(index, it))
+            }
+        }
     }
 }
 
 @Composable
-private fun SinglePrayerItem(singlePrayer: SinglePrayer) {
+private fun SinglePrayerItem(singlePrayer: SinglePrayer, onCheckChange: (Boolean) -> Unit) {
     ListItem(
         headlineContent = { Text(text = singlePrayer.name) },
         trailingContent = {
@@ -95,9 +97,20 @@ private fun SinglePrayerItem(singlePrayer: SinglePrayer) {
                 style = MaterialTheme.typography.bodyLarge
             )
         },
-        supportingContent = { Text(text = "${singlePrayer.timeLeft} Left") },
-        leadingContent = { Checkbox(checked = false, onCheckedChange = {}) }
+        supportingContent = { Text(text = "${representPrayerDurationLeft(singlePrayer.timeLeft)} Left") },
+        leadingContent = {
+            Checkbox(
+                checked = singlePrayer.alarmEnabled,
+                onCheckedChange = onCheckChange
+            )
+        }
     )
+}
+
+private fun representPrayerDurationLeft(duration: Duration): String {
+    val hours = duration.inWholeHours
+    val minutes = duration.inWholeMinutes - hours * 60
+    return "$hours h : ${minutes} m"
 }
 
 @Preview(showBackground = true)

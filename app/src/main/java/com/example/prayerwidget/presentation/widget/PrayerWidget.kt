@@ -42,11 +42,15 @@ import kotlinx.coroutines.flow.map
 
 class PrayerWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val city = context.dataStore.data.map { it.city }.firstOrNull() ?: "Banha"
-        val prayerDao = PrayerDatabase.createDatabase(context).prayerDao()
+        val city = context.dataStore.data.map { it.city }.firstOrNull() ?: return
         val today = getCurrentDay()
-        val prayer = prayerDao.getPrayerByDate(today.year, today.month, today.day, city)
-            ?.toPrayer() ?: return
+        val prayer = with(PrayerDatabase.createDatabase(context)) {
+            val prayerDao = prayerDao()
+            val prayerEntity =
+                prayerDao.getPrayerByDate(today.year, today.month, today.day, city).also { close() }
+            prayerEntity?.toPrayer() ?: return
+        }
+
         provideContent {
             GlanceTheme {
                 PrayerContent(prayer)
