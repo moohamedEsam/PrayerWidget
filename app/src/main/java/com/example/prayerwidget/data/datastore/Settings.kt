@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Settings(
     val city: String = "",
     val country: String = "",
-    val alarms: List<Boolean> = listOf(false, false, false, false, false),
+    val alarms: List<Boolean> = List(5) { false },
 )
