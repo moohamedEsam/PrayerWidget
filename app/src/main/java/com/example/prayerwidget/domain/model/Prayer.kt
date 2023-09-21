@@ -33,3 +33,5 @@ fun Prayer.Companion.empty() = Prayer(
     year = 0,
     city = ""
 )
+
+fun Prayer.toList() = listOf(fajr, dhuhr, asr, maghrib, isha)

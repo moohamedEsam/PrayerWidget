@@ -10,16 +10,16 @@ import com.example.prayerwidget.data.datastore.dataStore
 import com.example.prayerwidget.data.model.toPrayer
 import com.example.prayerwidget.data.source.local.PrayerDatabase
 import com.example.prayerwidget.domain.model.Prayer
+import com.example.prayerwidget.domain.model.toList
+import com.example.prayerwidget.domain.timeInMillis
 import com.example.prayerwidget.domain.usecase.PRAYER_INTENT_ACTION
-import com.example.prayerwidget.domain.usecase.getCurrentDay
-import com.example.prayerwidget.domain.usecase.getCurrentDayInMillis
 import com.example.prayerwidget.presentation.services.PRAYER_SERVICE_INTENT_ACTION
 import com.example.prayerwidget.presentation.services.PrayerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import java.util.Calendar
+import java.time.LocalDate
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -31,9 +31,14 @@ class AlarmReceiver : BroadcastReceiver() {
             if (!settings.alarms.toList().any { it })
                 return@launch
             val prayerDao = PrayerDatabase.createDatabase(context).prayerDao()
-            val today = getCurrentDay()
+            val localDate = LocalDate.now()
             val prayer =
-                prayerDao.getPrayerByDate(today.year, today.month, today.day, settings.city)
+                prayerDao.getPrayerByDate(
+                    localDate.year,
+                    localDate.monthValue,
+                    localDate.dayOfMonth,
+                    settings.city
+                )
                     ?.toPrayer() ?: return@launch
 
             setPrayerAlarm(prayer, settings.alarms, context)
@@ -65,28 +70,23 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun getPrayerTimes(prayer: Prayer, alarms: List<Boolean>): List<Long> = buildList {
-        val calendar = Calendar.getInstance()
-        // todo
-//        alarms::class.java.declaredFields.forEach { field ->
-//            field.isAccessible = true
-//            if (field.getBoolean(alarms))
-//                add(getPrayerTimeInMillis(calendar, field.get(prayer) as String))
-//        }
+        prayer.toList()
+            .filterIndexed { index, _ -> alarms[index] }
+            .forEach {
+                add(getPrayerTimeInMillis(it))
+            }
     }
 
-    private fun getPrayerTimeInMillis(
-        calendar: Calendar,
-        time: String
-    ): Long {
-        val today = getCurrentDayInMillis()
-        calendar.timeInMillis = today
+    private fun getPrayerTimeInMillis(time: String): Long {
         val (hours, minutes) = time
             .dropLast(6)
             .split(":")
             .map { it.toIntOrNull() ?: 0 }
+        val localDateTime = LocalDate.now()
+            .atStartOfDay()
+            .withHour(hours)
+            .withMinute(minutes)
 
-        calendar.add(Calendar.HOUR_OF_DAY, hours)
-        calendar.add(Calendar.MINUTE, minutes)
-        return calendar.timeInMillis
+        return localDateTime.timeInMillis()
     }
 }

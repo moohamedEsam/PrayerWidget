@@ -6,7 +6,7 @@ import io.ktor.client.HttpClient
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import java.util.Calendar
+import java.time.LocalDate
 
 
 class KtorDataSourceTest {
@@ -15,9 +15,9 @@ class KtorDataSourceTest {
 
     @Test
     fun getPrayer() = runTest {
-        val calendar = Calendar.getInstance()
+        val localDate = LocalDate.now()
         val result =
-            dataSource.getPrayer(calendar[Calendar.YEAR], calendar[Calendar.MONTH], "EG", "Banha")
+            dataSource.getPrayer(localDate.year, localDate.monthValue, "EG", "Banha")
         result.onRight { it.size shouldNotBe 0 }
             .onLeft { Assert.fail() }
     }

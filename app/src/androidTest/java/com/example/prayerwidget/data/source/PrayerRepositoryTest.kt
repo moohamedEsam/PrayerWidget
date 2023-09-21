@@ -11,7 +11,7 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import java.util.Calendar
+import java.time.LocalDate
 
 class PrayerRepositoryTest {
     private lateinit var prayerRepository: PrayerRepository
@@ -33,15 +33,14 @@ class PrayerRepositoryTest {
 
     @Test
     fun testSync() = runTest {
-        val calendar = Calendar.getInstance()
-        val result =
-            prayerRepository.sync(calendar[Calendar.YEAR], calendar[Calendar.MONTH], "EG", "Banha")
+        val localDate = LocalDate.now()
+        val result = prayerRepository.sync(localDate.year, localDate.monthValue, "EG", "Banha")
         result.onFailure { Assert.fail() }
 
         val prayer = prayerRepository.getPrayerByDate(
-            year = calendar[Calendar.YEAR],
-            month = calendar[Calendar.MONTH],
-            day = calendar[Calendar.DAY_OF_MONTH],
+            year = localDate.year,
+            month = localDate.monthValue,
+            day = localDate.dayOfMonth,
             city = "Banha"
         )
         prayer shouldNotBe null

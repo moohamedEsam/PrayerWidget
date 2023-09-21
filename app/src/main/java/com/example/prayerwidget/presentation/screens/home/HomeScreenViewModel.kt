@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.prayerwidget.domain.calculateTimeLeft
 import com.example.prayerwidget.domain.usecase.GetCurrentPrayerUseCase
 import com.example.prayerwidget.domain.usecase.ObserveSettingsUseCase
 import com.example.prayerwidget.domain.usecase.SyncUseCase
-import com.example.prayerwidget.domain.usecase.calculateTimeLeft
 import com.example.prayerwidget.domain.usecase.settings.UpdatePrayerAlarmEnabledUseCase
 import com.example.prayerwidget.domain.usecase.settings.UpdateSettingsUseCase
 import com.example.prayerwidget.presentation.model.toPrayerDto

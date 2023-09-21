@@ -9,8 +9,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -38,17 +36,25 @@ class HomeScreenViewModelTest {
             observeSettingsUseCase = { settingsFlow },
             updateSettingsUseCase = { settingsFlow.value = it(settingsFlow.value) },
             syncUseCase = {},
-            getCurrentPrayerUseCase = { prayerFlow }
+            getCurrentPrayerUseCase = { prayerFlow },
+            updatePrayerAlarmEnabledUseCase = { index, value ->
+                val alarms = settingsFlow.value.alarms.mapIndexed { i, b ->
+                    if (index == i)
+                        value
+                    else
+                        b
+                }
+                settingsFlow.value = settingsFlow.value.copy(
+                    alarms = alarms
+                )
+            }
         )
     }
 
     @Test
     fun `toggling the prayer should update the prayer state enabled`() = runTest {
-        val state = viewModel.state.filter { it.prayer != null }.first()
         viewModel.handleEvent(
-            HomeScreenEvent.PrayerAlarmEnableToggle(
-                state.prayer!!.prayers.first().copy(alarmEnabled = true)
-            )
+            HomeScreenEvent.PrayerAlarmEnableToggle(0, true)
 
         ).join()
         viewModel.state.test {

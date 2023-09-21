@@ -35,19 +35,24 @@ import com.example.prayerwidget.data.datastore.dataStore
 import com.example.prayerwidget.data.model.toPrayer
 import com.example.prayerwidget.data.source.local.PrayerDatabase
 import com.example.prayerwidget.domain.model.Prayer
-import com.example.prayerwidget.domain.usecase.getCurrentDay
 import com.example.prayerwidget.domain.usecase.transformTime
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 
 class PrayerWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val city = context.dataStore.data.map { it.city }.firstOrNull() ?: return
-        val today = getCurrentDay()
+        val localDate = LocalDate.now()
         val prayer = with(PrayerDatabase.createDatabase(context)) {
             val prayerDao = prayerDao()
             val prayerEntity =
-                prayerDao.getPrayerByDate(today.year, today.month, today.day, city).also { close() }
+                prayerDao.getPrayerByDate(
+                    localDate.year,
+                    localDate.monthValue,
+                    localDate.dayOfMonth,
+                    city
+                ).also { close() }
             prayerEntity?.toPrayer() ?: return
         }
 

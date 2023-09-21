@@ -16,7 +16,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
+        multiDexEnabled = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -33,6 +33,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -97,6 +98,9 @@ dependencies {
 
     //data store
     implementation(libs.androidx.dataStore.core)
+
+    //desugaring
+    coreLibraryDesugaring(libs.android.tools.desugaring)
 
     //test
     androidTestImplementation(libs.androidx.test.ext)

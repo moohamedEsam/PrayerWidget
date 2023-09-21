@@ -7,9 +7,8 @@ import androidx.work.NetworkType
 import androidx.work.WorkerParameters
 import com.example.prayerwidget.data.datastore.dataStore
 import com.example.prayerwidget.data.source.PrayerRepository
-import com.example.prayerwidget.domain.usecase.getCurrentDay
 import kotlinx.coroutines.flow.firstOrNull
-import java.util.Calendar
+import java.time.LocalDate
 
 class PrayerWorker(
     private val context: Context,
@@ -18,26 +17,21 @@ class PrayerWorker(
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
         return try {
-            val today = getCurrentDay()
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, today.year)
-                set(Calendar.MONTH, today.month)
-                set(Calendar.DAY_OF_MONTH, today.day)
-                add(Calendar.DAY_OF_MONTH, 1)
-            }
-            val year = calendar[Calendar.YEAR]
-            val month = calendar[Calendar.MONTH]
-            val settings = context.dataStore.data.firstOrNull()
-            val country = settings?.country ?: "EG"
-            val city = settings?.city ?: "Banha"
+            val localDate = LocalDate.now().plusDays(1)
+            val settings = context.dataStore.data.firstOrNull() ?: return Result.failure()
             val prayer = prayerRepository.getPrayerByDate(
-                year = year,
-                month = month,
-                day = calendar[Calendar.DAY_OF_MONTH],
-                city = city
+                year = localDate.year,
+                month = localDate.monthValue,
+                day = localDate.dayOfMonth,
+                city = settings.city
             )
             if (prayer != null) return Result.success()
-            prayerRepository.sync(year, month, country, city)
+            prayerRepository.sync(
+                localDate.year,
+                localDate.monthValue,
+                settings.country,
+                settings.city
+            )
             Result.success()
         } catch (e: Exception) {
             Result.failure()

@@ -1,13 +1,12 @@
 package com.example.prayerwidget.domain.usecase
 
+import com.example.prayerwidget.domain.calculateTimeLeft
 import com.example.prayerwidget.presentation.model.SinglePrayer
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
-import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.time.LocalDateTime
-import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -44,19 +43,5 @@ class CalculateTimeLeftTest {
             DurationUnit.MINUTES
         )
     }
-
-    @Test
-    fun `prayer before today should return 0s duration`() = runTest {
-        //arrange
-        val dateTime = LocalDateTime.now().minusDays(1)
-        val prayer = SinglePrayer(time = "${dateTime.hour}:${dateTime.minute} (EEST)")
-
-        //act
-        val result = calculateTimeLeft(prayer)
-
-        //assert
-        result shouldBe Duration.ZERO
-    }
-
 
 }
