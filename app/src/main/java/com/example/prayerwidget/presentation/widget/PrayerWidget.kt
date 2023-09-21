@@ -68,9 +68,9 @@ class PrayerWidget : GlanceAppWidget() {
         val style = TextStyle(fontSize = 16.sp, color = GlanceTheme.colors.onSecondaryContainer)
         Column(
             modifier = GlanceModifier.background(GlanceTheme.colors.secondaryContainer)
-                .cornerRadius(5.dp)
+                .cornerRadius(25.dp)
                 .clickable(onClick = actionStartActivity<MainActivity>())
-                .padding(32.dp)
+                .padding(16.dp)
         ) {
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),

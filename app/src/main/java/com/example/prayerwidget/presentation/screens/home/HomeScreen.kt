@@ -1,6 +1,9 @@
 package com.example.prayerwidget.presentation.screens.home
 
-import android.util.Log
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +36,6 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    Log.i("HomeScreen", "HomeScreen: ${state.prayer?.prayers?.last()}")
     HomeScreen(
         state = state,
         onEvent = viewModel::handleEvent
@@ -81,14 +83,20 @@ private fun HomeScreen(
         )
         state.prayer.prayers.forEachIndexed { index, value ->
             SinglePrayerItem(value) {
-                onEvent(HomeScreenEvent.PrayerAlarmEnableToggle(index, it))
+                onEvent(HomeScreenEvent.PrayerAlarmEnableToggle(index, !value.alarmEnabled))
             }
         }
     }
 }
 
 @Composable
-private fun SinglePrayerItem(singlePrayer: SinglePrayer, onCheckChange: (Boolean) -> Unit) {
+private fun SinglePrayerItem(singlePrayer: SinglePrayer, onCheckChange: () -> Unit) {
+    val permission = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) {
+        if (it)
+            onCheckChange()
+    }
     ListItem(
         headlineContent = { Text(text = singlePrayer.name) },
         trailingContent = {
@@ -101,7 +109,12 @@ private fun SinglePrayerItem(singlePrayer: SinglePrayer, onCheckChange: (Boolean
         leadingContent = {
             Checkbox(
                 checked = singlePrayer.alarmEnabled,
-                onCheckedChange = onCheckChange
+                onCheckedChange = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else
+                        onCheckChange()
+                }
             )
         }
     )

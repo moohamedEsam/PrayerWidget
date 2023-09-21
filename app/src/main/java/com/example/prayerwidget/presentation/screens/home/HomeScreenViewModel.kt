@@ -1,6 +1,5 @@
 package com.example.prayerwidget.presentation.screens.home
 
-import android.util.Log
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
-import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -44,6 +42,7 @@ class HomeScreenViewModel(
         val prayerDto = prayer.toPrayerDto()
         prayerDto.prayers.forEachIndexed { index, singlePrayer ->
             singlePrayer.alarmEnabled = settings.alarms[index]
+            singlePrayer.timeLeft = calculateTimeLeft(singlePrayer)
         }
         prayerDto
     }
@@ -82,7 +81,6 @@ class HomeScreenViewModel(
             .debounce((1).toDuration(DurationUnit.MINUTES))
             .filterNotNull()
             .collectLatest { prayers ->
-                Log.i("HomeScreenViewModel", "setPrayerTimeLeft: called")
                 prayers.forEach {
                     it.timeLeft = calculateTimeLeft(it)
                 }
@@ -98,14 +96,7 @@ class HomeScreenViewModel(
     private fun observePrayer() {
         viewModelScope.launch {
             prayerDtoFlow.collectLatest { prayerDto ->
-                Log.i("HomeScreenViewModel", "observePrayer: called")
-                _state.update { state ->
-                    prayerDto.prayers.forEachIndexed { index, singlePrayer ->
-                        singlePrayer.timeLeft =
-                            state.prayer?.prayers?.getOrNull(index)?.timeLeft ?: Duration.ZERO
-                    }
-                    state.copy(prayer = prayerDto)
-                }
+                _state.value = _state.value.copy(prayer = prayerDto)
             }
         }
     }
